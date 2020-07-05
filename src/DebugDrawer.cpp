@@ -156,8 +156,8 @@ void DebugDrawer::begin()
     clearGeometry(_lines);
     // clearGeometry( _triangles );
 
-    if (_leaf->getNumDrawables() > 3)
-        _leaf->removeDrawables(3, _leaf->getNumDrawables() - 3);
+    if (_leaf->getNumDrawables() > 2)
+        _leaf->removeDrawables(2, _leaf->getNumDrawables() - 2);
 
     _numTexts = 0;
 }
