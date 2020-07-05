@@ -21,7 +21,7 @@ class ALSource;
 class MotionState;
 class Atom;
 
-// A scene object that have optional graphic or physic body.
+// A scene object that have optional physic body.
 //
 // Life time:
 //      Game::add(...) add new Atom to osg and bullet directly. Some bullet operation can
@@ -32,17 +32,17 @@ class Atom;
 //      You can safely call Game::add(...) in update(dt), it's in update traversal of parent
 //      of SceneRoot.
 //
-//      Game::remove(...) remove Atom from osg and bullet at the end of Game::update. You
-//      can call it anytime at any place.
+//      Game::remove(...) remove Atom from osg and bullet, it's delayed, the actual remove
+//      happnens at the end of Game::update. You can call it anytime at any place.
 //
 //      Remove collisiion object would remove contact info, imagine you remove an Atom in a
 //      begin collision callback, but this atom is colliding with another Atom, the second
 //      atom will lost contact info(no points in btPersistentManifold any more) if you
 //      remove it directly. That's why it's removed in the end of Game::update.
 //
-//      Removed Atom are dying, but not not released immediately, Game keep a reference to
-//      it for a few frames, it's released if Game clear it's reference and no other
-//      reference exists.
+//      Removed Atom are dying zombie, it's not not released immediately, Game keep a
+//      reference to it for a few frames, it's released if Game clear it's reference and no
+//      other reference exists.
 //
 // Transform:
 //      kinematic  osg -> bullet

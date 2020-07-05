@@ -49,7 +49,7 @@ void Game::clear()
         removeAtomImplemantatoin(atom);
     }
     _atoms.clear();
-    _dyingAtoms.clear();
+    _zombies.clear();
     _newAtoms.clear();
     _removedAtoms.clear();
 }
@@ -59,7 +59,7 @@ void Game::init(int argc, char* argv[], osgViewer::Viewer* viewer)
     _viewer = viewer;
     _viewer->realize();
 
-    setDyingFrames(4);
+    setZombieFrames(4);
 
     createScene();
     _viewer->setSceneData(_root);
@@ -173,9 +173,9 @@ void Game::debugDrawSphere(const osg::Vec3& pos, float radius, const osg::Vec4& 
 }
 
 // Don't inline this, resize requires complete type osg::Fog toy::Atom
-void Game::setDyingFrames(int v)
+void Game::setZombieFrames(int v)
 {
-    _dyingAtoms.resize(v);
+    _zombies.resize(v);
 }
 
 void Game::setDebugging(bool v)
@@ -219,12 +219,12 @@ void Game::updatePhyscis()
 
 void Game::clearDeadAtoms()
 {
-    auto& deadAtoms = _dyingAtoms[_frameNumber % getDyingFrames()];
+    auto& zombies = _zombies[_frameNumber % getZombieFrames()];
 
 #ifdef DEBUG
-    if (!deadAtoms.empty())
+    if (!zombies.empty())
     {
-        for (const auto& item: deadAtoms)
+        for (const auto& item: zombies)
         {
             OSG_NOTICE << "remove dead atom " << item->getName() << " at frame "
                        << _frameNumber << "\n";
@@ -233,12 +233,11 @@ void Game::clearDeadAtoms()
     }
 #endif /* ifndef  */
 
-    deadAtoms.clear();
+    zombies.clear();
 
-    auto& dyingAtoms = deadAtoms;
     for (auto atom: _removedAtoms)
     {
-        dyingAtoms.insert(atom);
+        zombies.insert(atom);
         removeAtomImplemantatoin(atom);
     }
     _removedAtoms.clear();

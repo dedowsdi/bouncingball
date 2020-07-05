@@ -88,8 +88,8 @@ public:
 
     void debugDrawSphere(const osg::Vec3& pos, float radius, const osg::Vec4& color);
 
-    int getDyingFrames() const { return _dyingAtoms.size(); }
-    void setDyingFrames(int v);
+    int getZombieFrames() const { return _zombies.size(); }
+    void setZombieFrames(int v);
 
     bool getPaused() const { return _paused; }
     void setPaused(bool v);
@@ -172,7 +172,7 @@ private:
     AtomSet _atoms;
     AtomSet _newAtoms;
     AtomSet _removedAtoms;
-    std::vector<AtomRefSet> _dyingAtoms;
+    std::vector<AtomRefSet> _zombies;
 };
 
 }  // namespace toy
