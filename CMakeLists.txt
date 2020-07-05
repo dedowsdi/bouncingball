@@ -65,6 +65,7 @@ set(SRC
     src/OsgFactory.cpp
     src/OsgQuery.cpp
     src/ReaderWriterAL.cpp
+    src/SoundObjectManager.cpp
     src/ToyCopyOp.cpp
     src/main.cpp
     )

@@ -8,10 +8,21 @@
 #include <AL.h>
 #include <ALBuffer.h>
 #include <ALSource.h>
+#include <SoundObjectManager.h>
 #include <ToyCopyOp.h>
 
 namespace toy
 {
+
+class ALSourceManager : public ALObjectManager
+{
+public:
+    void deleteALObject(GLuint obj) override
+    {
+        alDeleteSources(1, &obj);
+        AL_CHECK_ERROR;
+    }
+};
 
 class ALSourceUpdater : public osg::Callback
 {
@@ -43,10 +54,7 @@ ALSource::~ALSource()
 {
     if (_alObject)
     {
-        OSG_DEBUG << "OpenAL delete source " << this << " : " << getName() << " "
-                  << _alObject << std::endl;
-        alDeleteSources(1, &_alObject);
-        AL_CHECK_ERROR;
+        sgsom.get<ALSourceManager>()->scheduleGLObjectForDeletion(_alObject);
         _alObject = 0;
     }
 }

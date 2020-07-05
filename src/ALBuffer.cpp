@@ -1,11 +1,21 @@
 #include <ALBuffer.h>
 
 #include <osgDB/FileUtils>
-
 #include <AL.h>
+#include <SoundObjectManager.h>
 
 namespace toy
 {
+
+class ALBufferManager : public ALObjectManager
+{
+public:
+    void deleteALObject(GLuint obj) override
+    {
+        alDeleteSources(1, &obj);
+        AL_CHECK_ERROR;
+    }
+};
 
 ALBuffer::ALBuffer() {}
 
@@ -13,7 +23,7 @@ ALBuffer::~ALBuffer()
 {
     if (_alObject)
     {
-        alDeleteBuffers(1, &_alObject);
+        sgsom.get<ALBufferManager>()->scheduleGLObjectForDeletion(_alObject);
         _alObject = 0;
     }
 }
