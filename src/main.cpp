@@ -142,5 +142,7 @@ int main(int argc, char* argv[])
 
     viewer.run();
 
+    sgg.clear();
+
     return 0;
 }
