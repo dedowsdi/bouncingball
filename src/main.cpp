@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     // f6   Toggle bullet draw life time
     // f7   Toggle bullet draw normal
     // f8   Shoot box
-    // f9   Pause
+    // f9   Pause/Continue
     // f10  Forward 1 frame
     // +    +10 shoot box initial speed
     // -    -10 shoot box initial speed
