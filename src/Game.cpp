@@ -226,10 +226,10 @@ void Game::clearDeadAtoms()
     {
         for (const auto& item: zombies)
         {
-            OSG_NOTICE << "remove dead atom " << item->getName() << " at frame "
+            OSG_DEBUG << "Remove dead atom " << item->getName() << " at frame "
                        << _frameNumber << "\n";
         }
-        OSG_NOTICE << std::endl;
+        OSG_DEBUG << std::endl;
     }
 #endif /* ifndef  */
 
@@ -247,7 +247,7 @@ void Game::addNewAtoms()
 {
     for (auto atom: _newAtoms)
     {
-        OSG_NOTICE << "Add " << atom->getName() << " " << atom << " to game" << std::endl;
+        OSG_INFO << "Add " << atom->getName() << " " << atom << " to game" << std::endl;
         atom->setRemoved(false);
         _atoms.insert(atom);
 
@@ -276,7 +276,7 @@ void Game::updateAtoms()
 
 void Game::removeAtomImplemantatoin(Atom* atom)
 {
-    OSG_NOTICE << "Remove " << atom->getName() << std::endl;
+    OSG_INFO << "Remove " << atom->getName() << std::endl;
 
     _atoms.erase(atom);
     atom->setRemoved(true);

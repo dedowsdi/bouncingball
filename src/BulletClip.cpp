@@ -15,6 +15,7 @@
 #include <Atom.h>
 #include <Convert.h>
 #include <DebugDrawer.h>
+#include <Game.h>
 #include <MotionState.h>
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
@@ -50,13 +51,13 @@ void BulletClip::add(btCollisionObject* obj, int collisionGroup, int collisionMa
         sgbw.addRigidBody(rigidBody, collisionGroup, collisionMask);
     else
         sgbw.addCollisionObject(obj, collisionGroup, collisionMask);
-    OSG_NOTICE << "add collision object " << obj << " to bullet" << std::endl;
+    OSG_INFO << "Add collision object " << obj << " to bullet" << std::endl;
 }
 
 void BulletClip::add(btTypedConstraint* v)
 {
     sgbw.addConstraint(v);
-    OSG_NOTICE << "add constraint " << &v << " to bullet" << std::endl;
+    OSG_INFO << "Add constraint " << &v << " to bullet" << std::endl;
 }
 
 void BulletClip::remove(btCollisionObject* obj)
@@ -71,7 +72,7 @@ void BulletClip::remove(btCollisionObject* obj)
         _world->removeRigidBody(rigidBody);
     else
         _world->removeCollisionObject(obj);
-    OSG_NOTICE << "remove collision object " << obj << " from bullet" << std::endl;
+    OSG_INFO << "Remove collision object " << obj << " from bullet" << std::endl;
 }
 
 void BulletClip::remove(btTypedConstraint* v)
@@ -82,7 +83,7 @@ void BulletClip::remove(btTypedConstraint* v)
     }
 
     _world->removeConstraint(v);
-    OSG_NOTICE << "remove constraint " << v << " from bullet" << std::endl;
+    OSG_INFO << "Remove constraint " << v << " from bullet" << std::endl;
 }
 
 btCollisionWorld::ClosestRayResultCallback BulletClip::rayTestClosest(
@@ -212,47 +213,45 @@ BulletClip::~BulletClip() {}
 
 void BulletClip::shootBox(const osg::Vec3& start, const osg::Vec3& dir)
 {
-    /* static int index = 0; */
+    static int index = 0;
 
-    /* auto box = new Bullet(); */
-    /* sgg.add(box); */
-    /* box->setName("ShootBox" + std::to_string(index++)); */
-    /* box->setMatrix(osg::Matrix::translate(start)); */
-    /* box->addChild(_shootBox); */
+    auto box = new Atom();
+    box->setName("ShootBox" + std::to_string(index++));
+    box->addChild(_shootBox);
 
-    /* auto ms = std::make_unique<MotionState>(box); */
-    /* auto bodyShape = std::make_shared<btBoxShape>(btVector3(0.5, 0.5, 0.5)); */
-    /* auto mass = 1.0f; */
-    /* auto body = createDynamicBody(bodyShape.get(), ms.get(), mass); */
-    /* body->setLinearVelocity(to(dir * _shootBoxInitialSpeed)); */
-    /* body->setCcdMotionThreshold(0.5); */
-    /* body->setCcdSweptSphereRadius(0.4f); */
-    /* box->setBody(std::move(body), bodyShape, std::move(ms)); */
+    // body
+    auto body =
+        box->setDynamicBody(std::make_shared<btBoxShape>(btVector3(0.5, 0.5, 0.5)), 1.0f);
+    body->setLinearVelocity(to(dir * _shootBoxInitialSpeed));
+    body->setCcdMotionThreshold(0.5);
+    body->setCcdSweptSphereRadius(0.4f);
 
-    /* auto beginCollisionCallback = [box, this](const Atom::CollisionInfo& ci) { */
-    /*     OSG_NOTICE << box->getName() << " start colliding with " << ci.atom->getName() */
-    /*                << ", framenumber : " << sgg.getFrameNumber() << std::endl; */
-    /* }; */
+    box->setWorldTransform(osg::Matrix::translate(start));
 
-    /* auto updateCollisionCallback = [box, this](const Atom::CollisionInfo& ci) { */
-    /*     OSG_NOTICE << box->getName() << " update colliding with " << ci.atom->getName()
-     */
-    /*                << ", framenumber : " << sgg.getFrameNumber() << std::endl; */
-    /*     sgg.remove(box); */
-    /* }; */
+    // debug collisions
+    auto beginCollisionCallback = [box, this](const Atom::CollisionInfo& ci) {
+        OSG_DEBUG << box->getName() << " start colliding with " << ci.atom->getName()
+                   << ", framenumber : " << sgg.getFrameNumber() << std::endl;
+    };
 
-    /* auto endCollisionCallback = [box, this](const Atom::CollisionInfo& ci) { */
-    /*     OSG_NOTICE << box->getName() << " end colliding with " << ci.atom->getName() */
-    /*                << ", framenumber : " << sgg.getFrameNumber() << std::endl; */
-    /*     sgg.remove(box); */
-    /* }; */
+    auto updateCollisionCallback = [box, this](const Atom::CollisionInfo& ci) {
+        // OSG_DEBUG << box->getName() << " update colliding with " << ci.atom->getName()
+        //            << ", framenumber : " << sgg.getFrameNumber() << std::endl;
+    };
 
-    /* box->addBeginCollisionCallback( */
-    /*     std::make_shared<Atom::CollisionCallback>(beginCollisionCallback)); */
-    /* box->addUpdateCollisionCallback( */
-    /*     std::make_shared<Atom::CollisionCallback>(updateCollisionCallback)); */
-    /* box->addEndCollisionCallback( */
-    /*     std::make_shared<Atom::CollisionCallback>(endCollisionCallback)); */
+    auto endCollisionCallback = [box, this](const Atom::CollisionInfo& ci) {
+        OSG_DEBUG << box->getName() << " end colliding with " << ci.atom->getName()
+                   << ", framenumber : " << sgg.getFrameNumber() << std::endl;
+    };
+
+    box->addBeginCollisionCallback(
+        std::make_shared<Atom::CollisionCallback>(beginCollisionCallback));
+    box->addUpdateCollisionCallback(
+        std::make_shared<Atom::CollisionCallback>(updateCollisionCallback));
+    box->addEndCollisionCallback(
+        std::make_shared<Atom::CollisionCallback>(endCollisionCallback));
+
+    sgg.add(box);
 }
 
 void BulletClip::preTickCallback(btDynamicsWorld* world, btScalar timeStep) {}
@@ -296,7 +295,7 @@ void BulletClip::updateCollisions(btScalar timeStep)
         auto atomB = toAtom(collision.objB);
         atomA->beginCollision({true, timeStep, atomB, collision.manifold});
         atomB->beginCollision({false, timeStep, atomA, collision.manifold});
-        OSG_NOTICE << atomA->getName() << " " << atomA << " hit " << atomB->getName() << " "
+        OSG_DEBUG << atomA->getName() << " " << atomA << " hit " << atomB->getName() << " "
                    << atomB << std::endl;
     }
 
@@ -315,7 +314,7 @@ void BulletClip::updateCollisions(btScalar timeStep)
         // if ( atomA->getType() != Atom::at_static_object &&
         //      atomB->getType() != Atom::at_static_object )
         // {
-        //     OSG_NOTICE << atomA->getName() << " update hit " << atomB->getName()
+        //     OSG_DEBUG << atomA->getName() << " update hit " << atomB->getName()
         //                << std::endl;
         // }
     }
@@ -331,7 +330,7 @@ void BulletClip::updateCollisions(btScalar timeStep)
         auto atomB = toAtom(collision.objB);
         atomA->endCollision({true, timeStep, atomB, collision.manifold});
         atomB->endCollision({false, timeStep, atomA, collision.manifold});
-        OSG_NOTICE << atomA->getName() << " " << atomA << " lost hit " << atomB->getName()
+        OSG_DEBUG << atomA->getName() << " " << atomA << " lost hit " << atomB->getName()
                    << " " << atomB << std::endl;
     }
 
