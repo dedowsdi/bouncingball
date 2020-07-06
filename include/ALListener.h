@@ -25,6 +25,10 @@ class ALListener : public osg::Node
 public:
     ALListener() = default;
 
+    const char* className() const override { return "ALListener"; }
+
+    const char* libraryName() const override { return "toy"; }
+
     float getGain() const { return _gain; }
     void setGain(float v);
 
