@@ -138,10 +138,6 @@ private:
 
     void createRoots();
 
-    void createALBuffers();
-
-    void createALSources();
-
     // declare ALContext as first member, init it before everything, clear it
     // after everything.(as long as you don't use static or global object)
     std::unique_ptr<ALContext> _alContext;
@@ -153,8 +149,6 @@ private:
     int _frameNumber = 0;
     int _debugFrames = 0;
     double _deltaTime = 0;
-
-    osg::Vec3 _sun = osg::Vec3(0, 0, 1);
 
     osgViewer::Viewer* _viewer = 0;
 
