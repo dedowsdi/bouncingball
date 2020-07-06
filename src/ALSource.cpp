@@ -333,7 +333,7 @@ bool RemoveSoundCallback::run(osg::Object* object, osg::Object* data)
 
         if (_time <= 0)
         {
-            auto parent = dynamic_cast<osg::Group*>(object);
+            auto node = dynamic_cast<osg::Group*>(object);
             osg::ref_ptr<ALSource> sound;
             if (_sound.lock(sound))
             {
@@ -341,11 +341,12 @@ bool RemoveSoundCallback::run(osg::Object* object, osg::Object* data)
                 {
                     _sound->stop();
                 }
+                node->removeChild(sound);
                 OSG_DEBUG << "Remove sound " << this << std::endl;
             }
 
             auto thisCallback = osg::ref_ptr<osg::Callback>(this);
-            parent->removeUpdateCallback(this);
+            node->removeUpdateCallback(this);
             return thisCallback->traverse(object, data);
         }
     }
