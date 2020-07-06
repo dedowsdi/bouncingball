@@ -194,12 +194,34 @@ void RenderStagePrinter::printPath()
     _out << "\n";
 }
 
+namespace
+{
+
+std::ostream& printByte(std::ostream& os, unsigned char byte)
+{
+    if (byte == 0xff)
+    {
+        os << "ff";
+    }
+    else
+    {
+        os << std::bitset<8>(byte);
+    }
+    return os;
+}
+
+}
+
 void VerbosePrintVisitor::apply(osg::Node& node)
 {
-    auto mask = node.getNodeMask();
     output() << node.libraryName() << "::" << node.className() << " ( " << &node << " ) "
-             << "\"" << node.getName() << "\" "
-             << (mask == -1u ? -1 : std::bitset<32>(node.getNodeMask()));
+             << "\"" << node.getName() << "\" ";
+    auto mask = node.getNodeMask();
+    printByte(_out, mask >> 24 & 0xff) << " ";
+    printByte(_out, mask >> 16 & 0xff) << " ";
+    printByte(_out, mask >> 8 & 0xff) << " ";
+    printByte(_out, mask >> 0 & 0xff);
+
     auto ss = node.getStateSet();
     if (ss)
     {
